@@ -90,6 +90,9 @@ def test() :
     strBody = '{"touser":"oYvUpt5h0pNLFxuS8R8OwRNQob8o", "msgtype":"text", "text":{"content":"Hello World"}}'
     oRet = oHttp.post('http://api.weixin.qq.com/cgi-bin/message/custom/send', dParams, strBody)
     print(oRet)
+    
+    import sys
+    print(sys.path)
 
 if __name__ == '__main__' :
     test()
