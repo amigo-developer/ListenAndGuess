@@ -30,20 +30,22 @@ class MyHttp(object) :
             dRet['strErrMsg'] = 'invalid dParam'
             return dRet
             
-        oHttp = httplib2.Http(timeout=iTimeOut, disable_ssl_certificate_validation=False if strUrl.find('https') != -1 else True)
+        oHttp = httplib2.Http(timeout=iTimeOut)
         
-        dRespHeaders, strRespContent = oHttp.request(strUrl + strParams)
-        if 'status' in dRespHeaders :
-            dRet['iHttpCode'] = dRespHeaders['status']
+        dResp, strRespContent = oHttp.request(strUrl + strParams)
+        if 'status' in dResp :
+            dRet['iHttpCode'] = dResp['status']
         dRet['strContent'] = strRespContent
         dRet['iErrCode'] = 0
         return dRet 
     
-    def post(self, strUrl, dParam = {}, strBody = '', dHeaders = {}, iIsEncode = True,  iTimeOut = 5) :
+    def post(self, strUrl, dParam = {}, strBody = '', dHeaders = {},  iTimeOut = 5) :
         '''
         入参：
         strUrl : 字符串
         dParam : 字典形式的参数，带在url后面的参数
+        strBody : post 的 body 内容
+        dHeaders : 请求头的信息
         iTimeOut : 超时时间
         返回：
         iErrCode : 错误码，0表示正常，非0异常
@@ -60,7 +62,7 @@ class MyHttp(object) :
         
         if len(strBody) == 0 :
             dRet['iErrCode'] = -1
-            dRet['strErrMsg'] = 'invalid strUrl'
+            dRet['strErrMsg'] = 'invalid strBody'
             return dRet            
         
         try:
@@ -70,15 +72,23 @@ class MyHttp(object) :
             dRet['strErrMsg'] = 'invalid dParam'
             return dRet        
 
-        oHttp = httplib2.Http()
-        response, content = oHttp.request(strUrl + strParams, 'POST', headers=lHeaders, body=strBody)
-            
-        pass
+        oHttp = httplib2.Http(timeout=iTimeOut)
+        dResp, strRespContent = oHttp.request(strUrl + strParams, 'POST', headers=dHeaders, body=strBody)
+        if 'status' in dResp :
+            dRet['iHttpCode'] = dResp['status']
+        dRet['strContent'] = strRespContent
+        dRet['iErrCode'] = 0
+        return dRet
     
 def test() :
     dParams = {'grant_type' : 'client_credential', 'appid' : 'wx69e477e8ba33d2de', 'secret' : '68c99c5af77a32266461d2e8ab0374e7'}
     oHttp = MyHttp()
-    oRet = oHttp.get('https://api.weixin.qq.com/cgi-bin/token', dParams)
+    #oRet = oHttp.get('https://api.weixin.qq.com/cgi-bin/token', dParams)
+    #print(oRet)
+    
+    dParams = {'access_token' : 'ZQ_QZW3uHNrBc1R8TPGxdNxXozytD5S9cCQ0_qoBU2MHh0TbsIzese05OjgBP4yuC9U42JKSy-6feSVq3RswCEvyQSkrh9Vi-884WGaaTt4'}
+    strBody = '{"touser":"oYvUpt5h0pNLFxuS8R8OwRNQob8o", "msgtype":"text", "text":{"content":"Hello World"}}'
+    oRet = oHttp.post('http://api.weixin.qq.com/cgi-bin/message/custom/send', dParams, strBody)
     print(oRet)
 
 if __name__ == '__main__' :
