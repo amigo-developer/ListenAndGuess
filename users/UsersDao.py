@@ -49,6 +49,7 @@ class CUsersDao(object):
         
     def insert(self,dValue):
         strsql=None
+        
         if 'openid' in dValue:
             self.connect()
             table = self.modTable(dValue['openid'])
@@ -65,8 +66,9 @@ class CUsersDao(object):
             try :
                 self.cur.execute(strsql)
                 self.cxn.commit()
-            except :
                 CMyLogger.debug(strsql)
+            except :
+               # CMyLogger.debug(strsql)
                 return -1
             return 0
         else:

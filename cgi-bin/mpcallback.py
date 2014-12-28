@@ -11,7 +11,7 @@ from util.easyxml import CXmlReader
 from users.UsersDao import CUsersDao
 from util.mylogger import CMyLogger
 from mpcallbackhandler.subscribehandler import CSubscribeHandler
-from mpcallbackhandler.unsubscribehandler import CUnSubscribeHandler
+from mpcallbackhandler.unsubscribehandler import CUnsubscribeHandler
 
 cgitb.enable(display=0, logdir=os.environ['PYTHONPATH'] + '\log')
 
@@ -72,7 +72,7 @@ def main() :
             
         dEventHandler = {}
         dEventHandler['subscribe'] = CSubscribeHandler()
-        dEventHandler['unsubscribe'] = CUnSubscribeHandler()
+        dEventHandler['unsubscribe'] = CUnsubscribeHandler()
         #dEventHandler['text'] = CSubscribeHandler()
         
         CMyLogger.debug('msgtype:%s %s' % (strMsgTpye, str(dEventHandler)))
