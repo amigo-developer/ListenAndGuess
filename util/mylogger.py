@@ -1,9 +1,10 @@
 import logging
 import logging.handlers
 import sys
+import os
  
-class MyLogger(object) :
-    strLogPath = 'e:\python\python.log'
+class CMyLogger(object) :
+    strLogPath = os.environ['PYTHONPATH'] + '/log/data.log'
     
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
@@ -33,7 +34,7 @@ class MyLogger(object) :
         
         
 def test() :
-    MyLogger.debug('wuyao')
+    CMyLogger.debug('wuyao')
     print(sys.path)
         
 if __name__ == '__main__' :

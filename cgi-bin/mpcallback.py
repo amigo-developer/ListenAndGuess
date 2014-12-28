@@ -1,13 +1,19 @@
+#coding=utf-8 
+
 import cgi
 import cgitb
 import sys
 import os
 import locale
+import time
 import urllib.parse
 from util.easyxml import CXmlReader
 from users.UsersDao import CUsersDao
+from util.mylogger import CMyLogger
+from mpcallbackhandler.subscribehandler import CSubscribeHandler
+from mpcallbackhandler.unsubscribehandler import CUnSubscribeHandler
 
-cgitb.enable(display=0, logdir=os.environ['PYTHONPATH'] + 'log')
+cgitb.enable(display=0, logdir=os.environ['PYTHONPATH'] + '\log')
 
 class CCgiInput(object) :
     def __init__(self) :
@@ -46,10 +52,10 @@ class CCgiInput(object) :
 class CCgiOutput(object) :
     @classmethod
     def output(cls, str) :
-        print('Content-type: text/html \n')
+        print('Content-type: text/html; charset=UTF-8\r\n')
         print(str)        
         
-def main() :
+def main() :    
     oInput = CCgiInput()
     strEcho = oInput.getValue('echostr')
     if strEcho != None :
@@ -57,20 +63,35 @@ def main() :
     else :
         strPostData = oInput.getBodyData()
         if len(strPostData) == 0 : return 0
+        CMyLogger.debug(strPostData)
         
         oXmlReader = CXmlReader(strPostData)
         strMsgTpye = oXmlReader.getValue('/xml/MsgType')
-        strEventType = None
         if strMsgTpye == 'event' :
-            strEventType = oXmlReader.getValue('/xml/Event')
+            strMsgTpye = oXmlReader.getValue('/xml/Event')
             
-        if strEventType == 'subscribe' :
-            dUsersInfo = {}
-            dUsersInfo['openid'] = oXmlReader.getValue('/xml/FromUserName')
-            dUsersInfo['subscribe'] = 1
+        dEventHandler = {}
+        dEventHandler['subscribe'] = CSubscribeHandler()
+        dEventHandler['unsubscribe'] = CUnSubscribeHandler()
+        #dEventHandler['text'] = CSubscribeHandler()
+        
+        CMyLogger.debug('msgtype:%s %s' % (strMsgTpye, str(dEventHandler)))
+        if strMsgTpye in dEventHandler :
+            strRetMsg = dEventHandler[strMsgTpye].handle(oXmlReader)
             
-            oUsersDao = CUsersDao()
-            oUsersDao.insert(dUsersInfo)    
+            strFromId = oXmlReader.getValue('/xml/FromUserName')
+            strToId = oXmlReader.getValue('/xml/ToUserName')
+            strRet = '''<xml>
+                    <ToUserName><![CDATA[%s]]></ToUserName>
+                    <FromUserName><![CDATA[%s]]></FromUserName>
+                    <CreateTime>%d</CreateTime>
+                    <MsgType><![CDATA[text]]></MsgType>
+                    <Content><![CDATA[%s]]></Content>
+                    </xml>''' % (strFromId, strToId, int(time.time()), strRetMsg)                
+            CCgiOutput.output(strRet)
+            
+       
+ 
 
 if __name__ == '__main__' :
     main()

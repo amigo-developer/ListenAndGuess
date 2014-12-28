@@ -1,3 +1,5 @@
+from util.mylogger import CMyLogger
+
 class CUsersDao(object):
     '''
 
@@ -30,7 +32,11 @@ class CUsersDao(object):
             table = self.modTable(dWhere['openid'])
             strsql='select openid, nickname, sex, subscribe, city, country, province, language, headimgurl, subscribe_time  from %s' % table
             strsql +=' where openid="%s"' % dWhere['openid']
-            self.cur.execute(strsql)
+            try:
+                self.cur.execute(strsql)
+            except:
+                CMyLogger.debug(strsql)
+                return-1
             
             oneResult = self.cur.fetchone()
             if oneResult == None : return {}
@@ -56,9 +62,15 @@ class CUsersDao(object):
             if 'language' in dValue : strsql += ',language = "%s"' % dValue['language']
             if 'headimgurl' in dValue : strsql += ',headimgurl = "%s"' % dValue['headimgurl']
             if 'subscribe_time' in dValue : strsql += ',subscribe_time = %d' % dValue['subscribe_time']
-            self.cur.execute(strsql)   
-            self.cxn.commit()
-        return 0
+            try :
+                self.cur.execute(strsql)
+                self.cxn.commit()
+            except :
+                CMyLogger.debug(strsql)
+                return -1
+            return 0
+        else:
+            return 1
     
     def update(self, dValue, dWhere) :
         strsql=None
@@ -76,9 +88,15 @@ class CUsersDao(object):
             if 'headimgurl' in dValue : strsql += ',headimgurl = "%s"' % dValue['headimgurl']
             if 'subscribe_time' in dValue : strsql += ',subscribe_time = %d' % dValue['subscribe_time']
             strsql += ' where openid = "%s"' % dWhere['openid']
-            self.cur.execute(strsql)   
-            self.cxn.commit()
-        return 0        
+            try:
+                self.cur.execute(strsql)   
+                self.cxn.commit()
+            except:
+                CMyLogger.debug(strsql)
+                return -1
+            return 0      
+        else:
+            return 1
     
     def delete(self, dWhere) :
         strsql=None
@@ -87,9 +105,16 @@ class CUsersDao(object):
             table = self.modTable(dWhere['openid'])
             strsql='delete from %s' % table
             strsql += ' where openid = "%s"' % dWhere['openid']
-            self.cur.execute(strsql)   
-            self.cxn.commit()
-        return 0                
+            try:
+                self.cur.execute(strsql)   
+                self.cxn.commit()
+            except:
+                CMyLogger.debug(strsql)
+                return -1
+            return 0      
+        else:
+            return 1
+              
     
 if __name__== '__main__':
     oUsersDao=CUsersDao()
