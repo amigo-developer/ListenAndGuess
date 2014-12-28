@@ -7,7 +7,7 @@ import urllib.parse
 from util.easyxml import CXmlReader
 from users.UsersDao import CUsersDao
 
-cgitb.enable(display=1, logdir='e:\svn\python\log')
+cgitb.enable(display=0, logdir=os.environ['PYTHONPATH'] + 'log')
 
 class CCgiInput(object) :
     def __init__(self) :
@@ -48,17 +48,18 @@ class CCgiOutput(object) :
     def output(cls, str) :
         print('Content-type: text/html \n')
         print(str)        
-
-if __name__ == '__main__' :
+        
+def main() :
     oInput = CCgiInput()
     strEcho = oInput.getValue('echostr')
     if strEcho != None :
         CCgiOutput.output(strEcho)
     else :
         strPostData = oInput.getBodyData()
+        if len(strPostData) == 0 : return 0
+        
         oXmlReader = CXmlReader(strPostData)
         strMsgTpye = oXmlReader.getValue('/xml/MsgType')
-        
         strEventType = None
         if strMsgTpye == 'event' :
             strEventType = oXmlReader.getValue('/xml/Event')
@@ -69,6 +70,9 @@ if __name__ == '__main__' :
             dUsersInfo['subscribe'] = 1
             
             oUsersDao = CUsersDao()
-            oUsersDao.insert(dUsersInfo)
+            oUsersDao.insert(dUsersInfo)    
+
+if __name__ == '__main__' :
+    main()
         
         
