@@ -1,5 +1,6 @@
 #coding=utf-8 
 
+
 import xml.etree.ElementTree as xml
 
 class CXmlReader(object) :
